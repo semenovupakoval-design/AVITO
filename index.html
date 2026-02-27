@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SEMENOVAPLZ</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#000;
+  --bg2:#111;
+  --card:#161617;
+  --card2:#1d1d1f;
+  --border:rgba(255,255,255,.1);
+  --text:#f5f5f7;
+  --sub:#a1a1a6;
+  --dim:#6e6e73;
+  --blue:#2997ff;
+  --blue2:#0071e3;
+  --green:#30d158;
+  --H:48px; --SH:52px; --PH:44px; --NH:72px;
+}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,'Helvetica Neue',sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+
+/* ── HEADER ── */
+#H{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  height:var(--H);
+  display:flex;align-items:center;justify-content:center;
+  padding:0 16px;
+  background:rgba(0,0,0,.88);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--border);
+}
+.logo{
+  font-size:16px;font-weight:600;letter-spacing:.04em;
+  color:var(--text);
+}
+.tg-btn{
+  position:absolute;right:16px;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(41,151,255,.15);
+  border:.5px solid rgba(41,151,255,.25);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;transition:background .15s;flex-shrink:0;
+}
+.tg-btn:active{background:rgba(41,151,255,.3);}
+.tg-btn svg{width:16px;height:16px;}
+
+/* ── SEARCH ── */
+#S{
+  position:fixed;left:0;right:0;z-index:59;
+  top:var(--H);
+  padding:8px 16px 8px;
+  background:rgba(0,0,0,.88);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--border);
+}
+.sb{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.08);
+  border-radius:12px;padding:9px 14px;
+}
+.sb svg{flex-shrink:0;opacity:.4;}
+.sb input{
+  flex:1;background:none;border:none;outline:none;
+  font-size:15px;color:var(--text);font-family:inherit;
+}
+.sb input::placeholder{color:var(--dim);}
+#clr{
+  display:none;background:rgba(255,255,255,.25);border:none;color:#000;
+  width:16px;height:16px;border-radius:50%;font-size:9px;
+  align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;
+}
+#clr.v{display:flex;}
+
+/* ── PILLS ── */
+#P{
+  position:fixed;left:0;right:0;z-index:58;
+  top:calc(var(--H) + var(--SH));
+  height:var(--PH);
+  background:rgba(0,0,0,.88);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--border);
+  overflow:hidden;
+}
+#P.h{display:none;}
+#PI{
+  display:flex;align-items:center;
+  height:100%;
+  overflow-x:scroll;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding:0 16px;
+  gap:6px;
+  box-sizing:border-box;
+}
+#PI::-webkit-scrollbar{display:none;}
+#P.h{display:none;}
+.pill{
+  flex-shrink:0;
+  padding:6px 14px;border-radius:980px;
+  font-size:13px;font-weight:400;color:var(--dim);
+  background:rgba(255,255,255,.07);border:none;cursor:pointer;font-family:inherit;
+  transition:all .15s;letter-spacing:.01em;
+  touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;
+  white-space:nowrap;
+}
+.pill.on{background:var(--blue2);color:#fff;font-weight:500;}
+
+/* ── SCROLL ── */
+#SC{
+  position:fixed;left:0;right:0;
+  top:calc(var(--H) + var(--SH) + var(--PH));
+  bottom:var(--NH);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
+}
+#SC::-webkit-scrollbar{width:2px;}
+#SC::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+#SC.np{top:calc(var(--H) + var(--SH));}
+
+/* ── LIST ── */
+.slbl{
+  padding:20px 16px 8px;
+  font-size:12px;font-weight:400;color:var(--dim);
+  text-transform:uppercase;letter-spacing:.1em;
+}
+
+.lst{margin:0;padding:0 16px;display:flex;flex-direction:column;gap:8px;}
+.row{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;
+  background:#1c1c1e;
+  border-radius:18px;
+  cursor:pointer;
+  transition:background .12s;
+  min-height:52px;
+}
+.row:active{background:#2c2c2e;}
+
+.row-body{flex:1;min-width:0;}
+.row-name{
+  font-size:15px;font-weight:400;color:var(--text);
+  line-height:1.35;letter-spacing:-.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.row-name strong{font-weight:700;color:#fff;}
+
+.row-price{
+  font-size:13px;font-weight:400;
+  color:var(--sub);white-space:nowrap;flex-shrink:0;
+}
+
+.row-plus{display:none;}
+.chev{display:none;}
+
+mark{background:rgba(41,151,255,.2);color:var(--blue);border-radius:4px;padding:0 3px;}
+.empty{text-align:center;padding:80px 20px;color:var(--dim);font-size:15px;}
+.empty-e{font-size:44px;margin-bottom:16px;}
+.ftr{
+  text-align:center;padding:24px 20px 12px;
+  font-size:11px;color:var(--dim);letter-spacing:.03em;line-height:2;
+}
+
+/* ── BOTTOM NAV ── */
+#N{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  height:var(--NH);
+  display:flex;align-items:flex-start;padding-top:8px;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:rgba(0,0,0,.92);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-top:.5px solid var(--border);
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  border:none;background:none;color:var(--dim);
+  cursor:pointer;font-family:inherit;padding:2px 0;transition:color .12s;
+}
+.ni.on{color:var(--blue);}
+.ni svg{width:22px;height:22px;}
+.ni-lb{font-size:9.5px;font-weight:400;letter-spacing:.02em;}
+
+/* ── OVERLAY / SHEET ── */
+#OV{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.75);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  display:flex;align-items:flex-end;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+#OV.open{opacity:1;pointer-events:all;}
+#SH{
+  width:100%;background:#000;
+  border-radius:24px 24px 0 0;
+  overflow-y:auto;max-height:92vh;
+  padding:10px 0 max(env(safe-area-inset-bottom,16px),28px);
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  border-top:.5px solid rgba(255,255,255,.12);
+}
+#OV.open #SH{transform:translateY(0);}
+.drag{width:40px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:0 auto 20px;}
+
+/* Блок с инфо о товаре */
+.sh-prod{
+  margin:0 16px 10px;
+  background:#1c1c1e;
+  border-radius:18px;
+  padding:16px 20px;
+}
+.sh-tag{
+  font-size:10px;font-weight:700;color:var(--blue);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;
+}
+.sh-name{
+  font-size:15px;font-weight:500;color:var(--text);
+  line-height:1.35;margin-bottom:8px;
+}
+.sh-price{
+  font-size:30px;font-weight:700;color:var(--text);
+  letter-spacing:-.04em;
+}
+
+/* Поля ввода */
+.flds{padding:0 16px;display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
+.fld{
+  display:flex;align-items:center;gap:14px;
+  background:#1c1c1e;
+  border-radius:14px;
+  padding:14px 18px;
+  border:none;
+}
+.fic{font-size:16px;flex-shrink:0;opacity:.6;}
+.fld input{
+  flex:1;background:none;border:none;outline:none;
+  font-size:15px;color:var(--text);font-family:inherit;
+}
+.fld input::placeholder{color:var(--dim);}
+
+/* Рассрочка */
+.inst{
+  background:#1c1c1e;
+  border-radius:14px;
+  margin:0 16px 10px;
+  overflow:hidden;
+}
+.inst-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;cursor:pointer;
+}
+.inst-l{display:flex;align-items:center;gap:14px;}
+.inst-lbl{font-size:15px;color:var(--text);}
+.sw{
+  width:48px;height:28px;border-radius:14px;
+  background:rgba(255,255,255,.15);border:none;position:relative;
+  transition:background .2s;flex-shrink:0;cursor:pointer;
+}
+.sw.on{background:var(--blue2);}
+.sw::after{
+  content:'';position:absolute;
+  width:24px;height:24px;border-radius:12px;
+  background:#fff;top:2px;left:2px;
+  transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.sw.on::after{transform:translateX(20px);}
+.imos{display:none;padding:0 16px 16px;}
+.imos.v{display:block;}
+.imos-t{font-size:11px;color:var(--dim);font-weight:600;
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.mb{
+  background:rgba(255,255,255,.08);border:none;border-radius:12px;
+  padding:10px 4px;font-size:14px;font-weight:400;
+  color:var(--sub);cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;
+}
+.mb.on{background:var(--blue2);color:#fff;font-weight:600;}
+
+/* Кнопка */
+.obtn-w{padding:0 16px;}
+.obtn{
+  width:100%;padding:16px;
+  background:var(--blue2);color:#fff;
+  border:none;border-radius:14px;cursor:pointer;
+  font-family:inherit;font-size:16px;font-weight:600;
+  letter-spacing:-.01em;transition:opacity .15s;
+}
+.obtn:active{opacity:.8;}
+.obtn.ok{background:var(--green);}
+</style>
+</head>
+<body>
+
+<div id="H">
+  <div class="logo">SEMENOVAPLZ</div>
+  <a class="tg-btn" href="https://t.me/semenovaplz" target="_blank">
+    <svg viewBox="0 0 24 24" fill="currentColor" style="color:#2997ff"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.9 8.22l-1.97 9.28c-.15.66-.54.82-1.09.51l-3-2.21-1.45 1.39c-.16.16-.3.3-.61.3l.21-3.05 5.56-5.02c.24-.21-.05-.33-.37-.12L8.32 14.62l-2.96-.93c-.64-.2-.66-.64.14-.95l11.57-4.46c.54-.19 1.01.13.83.94z"/></svg>
+  </a>
+</div>
+
+<div id="S">
+  <div class="sb">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="5.5" cy="5.5" r="4.5" stroke="white" stroke-width="1.3"/>
+      <path d="M9 9L12.5 12.5" stroke="white" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+    <input id="si" type="search" placeholder="Поиск…"
+      oninput="onSrch(this.value)"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button id="clr" onclick="clrSrch()">✕</button>
+  </div>
+</div>
+
+<div id="P"><div id="PI"></div></div>
+<div id="SC" class="np"><div id="CT"></div></div>
+<nav id="N"></nav>
+
+<div id="OV" onclick="maybeClose(event)">
+  <div id="SH">
+    <div class="drag"></div>
+    <div class="sh-prod">
+      <div class="sh-tag">Оформление заказа</div>
+      <div class="sh-name" id="sn"></div>
+      <div class="sh-price" id="sp"></div>
+    </div>
+    <div class="flds">
+      <div class="fld"><span class="fic">👤</span><input id="fN" placeholder="Ваше имя" autocomplete="off"></div>
+      <div class="fld"><span class="fic">📞</span><input id="fP" type="tel" placeholder="+7 (___) ___-__-__" inputmode="numeric" autocomplete="off"></div>
+    </div>
+    <div class="inst" id="instWrap">
+      <div class="inst-row" onclick="togInst()">
+        <div class="inst-l"><span class="fic">💳</span><span class="inst-lbl">Рассрочка</span></div>
+        <button class="sw" id="sw" onclick="event.stopPropagation();togInst()"></button>
+      </div>
+      <div class="imos" id="imos">
+        <div class="imos-t">Срок</div>
+        <div class="mgrid" id="mg"></div>
+      </div>
+    </div>
+    <div class="obtn-w">
+      <button class="obtn" id="ob" onclick="send()">Написать менеджеру</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();}
+
+const DATA={
+  iPhone:["iPhone 13 128 Midnight 🇺🇸 1 Sim + eSim - 39 500₽","iPhone 13 128 Midnight 🇮🇳 - 39 800₽","iPhone 13 128 Starlight 🇮🇳 - 40 500₽","iPhone 13 128 Blue 🇮🇳 - 40 800₽","iPhone 14 128 Midnight 🇮🇩 - 41 200₽","iPhone 14 128 Blue 🇮🇩 - 41 200₽","iPhone 14 256 Midnight 🇮🇳 - 46 000₽","iPhone 15 128 Black 🇮🇳 - 45 400₽","iPhone 15 128 Blue 🇮🇳 - 45 100₽","iPhone 15 128 Pink 🇮🇳 - 47 200₽","iPhone 15 128 Yellow - 44 500₽","iPhone 15 256 Black 🇮🇳 - 52 700₽","iPhone 15 256 Blue 🇮🇳 - 52 700₽","iPhone 15 256 Pink 🇮🇳 - 55 700₽","iPhone 15 Plus 128 Blue 🇧🇷 - 48 800₽","iPhone 15 Plus 128 Green 🇮🇳 - 50 100₽","iPhone 15 Plus 128 Pink 🇧🇷 - 50 300₽","iPhone 15 Plus 256 Green - 56 900₽","iPhone 15 Plus 256 Pink 🇪🇺 - 57 600₽","iPhone 15 Pro Max 256 Black 🇯🇵 - 80 900₽","iPhone 15 Pro Max 256 Black 🇪🇺 - 81 000₽","iPhone 15 Pro Max 256 White 🇰🇷 - 86 700₽","iPhone 15 Pro Max 256 Natural 🇸🇬 - 79 800₽","iPhone 15 Pro Max 512 Black 🇸🇬 - 96 400₽","iPhone 15 Pro Max 512 White 🇰🇷 - 96 700₽","iPhone 15 Pro Max 512 Blue 🇦🇪 - 96 300₽","iPhone 15 Pro Max 512 Natural 🇦🇪 - 95 400₽","iPhone 16e 128 Black 🇮🇳 - 42 900₽","iPhone 16e 256 Black 🇦🇺 - 53 700₽","iPhone 16 128 Black 🇮🇳 - 54 000₽","iPhone 16 128 White 🇯🇵 - 54 000₽","iPhone 16 128 White 🇮🇳 - 54 100₽","iPhone 16 128 Pink 🇮🇳 - 53 900₽","iPhone 16 128 Teal 🇮🇳 - 53 800₽","iPhone 16 128 Ultramarine 🇮🇳 - 54 000₽","iPhone 16 256 Black 🇮🇳 - 60 200₽","iPhone 16 256 White 🇯🇵 - 60 200₽","iPhone 16 256 White 🇮🇳 - 60 600₽","iPhone 16 256 Pink - 60 200₽","iPhone 16 256 Teal 🇮🇳 - 60 100₽","iPhone 16 256 Ultramarine 🇮🇳 - 60 600₽","iPhone 16 512 White 🇺🇸 eSim - 63 900₽","iPhone 16 512 White - 74 600₽","iPhone 16 512 Pink 🇺🇸 eSim - 64 200₽","iPhone 16 512 Teal 🇺🇸 eSim - 63 900₽","iPhone 16 512 Teal - 74 900₽","iPhone 16 512 Ultramarine 🇺🇸 eSim - 63 900₽","iPhone 16 512 Ultramarine - 74 600₽","iPhone 16 Plus 128 Black - 60 500₽","iPhone 16 Plus 128 White - 58 900₽","iPhone 16 Plus 128 Pink 🇮🇳 - 60 500₽","iPhone 16 Plus 128 Teal 🇮🇳 - 58 600₽","iPhone 16 Plus 128 Ultramarine - 57 700₽","iPhone 16 Plus 256 Black 🇮🇳 - 68 700₽","iPhone 16 Plus 256 White 🇮🇳 - 68 400₽","iPhone 16 Plus 256 Pink - 68 800₽","iPhone 16 Plus 256 Teal - 68 600₽","iPhone 16 Plus 256 Ultramarine 🇮🇳 - 68 700₽","iPhone 16 Plus 512 Black 🇦🇪 - 80 600₽","iPhone 16 Plus 512 Teal 🇰🇼 - 80 200₽","iPhone 16 Plus 512 Ultramarine 🇦🇪 - 80 600₽","iPhone 16 Prо 128 White 🇨🇳 2 Sim - 68 600₽","iPhone 16 Pro 128 White 🇧🇷 - 81 800₽","iPhone 16 Pro 128 Natural 🇨🇳 2 Sim - 70 700₽","iPhone 16 Pro 128 Desert 🇨🇳 2 Sim - 70 100₽","iPhone 16 Pro 128 Desert 🇮🇳 - 79 100₽","iPhone 16 Pro 1Tb White - 108 500₽","iPhone 16 Pro Max 256 Black 🇸🇬 - 103 700₽","iPhone 16 Pro Max 256 Desert 🇰🇼 - 87 200₽","iPhone Air 256 Black eSim - 68 700₽","iPhone Air 256 White 🇨🇳 eSim - 67 300₽","iPhone Air 256 White 🇭🇰 eSim - 67 900₽","iPhone Air 256 Blue 🇨🇳 eSim - 66 400₽","iPhone Air 256 Blue 🇮🇳 eSim - 67 000₽","iPhone Air 256 Gold 🇨🇳 eSim - 67 100₽","iPhone Air 256 Gold 🇮🇳 eSim - 67 900₽","iPhone Air 512 White 🇺🇸 eSim - 89 700₽","iPhone Air 512 Blue 🇺🇸 eSim - 84 200₽","iPhone Air 1Tb White 🇺🇸 eSim - 98 900₽","iPhone Air 1Tb Blue 🇺🇸 eSim - 92 100₽","iPhone Air 1Tb Gold eSim - 96 700₽","iPhone 17 256 Black eSim - 63 100₽","iPhone 17 256 Black 🇮🇳 1 Sim + eSim - 66 400₽","iPhone 17 256 White eSim - 62 800₽","iPhone 17 256 White 🇮🇳 1 Sim + eSim - 66 300₽","iPhone 17 256 Blue 🇯🇵 eSim - 62 600₽","iPhone 17 256 Blue 🇮🇳 1 Sim + eSim - 66 200₽","iPhone 17 256 Lavender eSim - 62 700₽","iPhone 17 256 Lavender 🇮🇳 1 Sim + eSim - 66 900₽","iPhone 17 256 Sage eSim - 64 700₽","iPhone 17 256 Sage 1 Sim + eSim - 67 000₽","iPhone 17 512 Black eSim - 78 300₽","iPhone 17 512 Black 🇮🇳 1 Sim + eSim - 81 300₽","iPhone 17 512 White eSim - 77 900₽","iPhone 17 512 White 1 Sim + eSim - 81 200₽","iPhone 17 512 Blue eSim - 78 200₽","iPhone 17 512 Blue 🇮🇳 1 Sim + eSim - 79 300₽","iPhone 17 512 Lavender eSim - 78 700₽","iPhone 17 512 Lavender 1 Sim + eSim - 79 800₽","iPhone 17 512 Sage 🇯🇵 eSim - 79 200₽","iPhone 17 512 Sage 1 Sim + eSim - 80 600₽","iPhone 17 Pro 256 Silver eSim - 95 200₽","iPhone 17 Pro 256 Blue 🇰🇼 eSim - 91 700₽","iPhone 17 Pro 256 Blue 1 Sim + eSim - 103 700₽","iPhone 17 Pro 256 Orange 🇰🇼 eSim - 91 200₽","iPhone 17 Pro 256 Orange 🇨🇳 2 Sim - 98 600₽","iPhone 17 Pro 256 Orange 🇰🇷 1 Sim + eSim - 100 200₽","iPhone 17 Pro 256 Orange 🇭🇰 1 Sim + eSim - 100 300₽","iPhone 17 Pro 256 Orange 🇪🇺 1 Sim + eSim - 100 400₽","iPhone 17 Pro 512 Silver eSim - 111 400₽","iPhone 17 Pro 512 Silver 🇰🇷 1 Sim + eSim - 116 700₽","iPhone 17 Pro 512 Blue eSim - 110 900₽","iPhone 17 Pro 512 Blue 🇰🇷 1 Sim + eSim - 116 300₽","iPhone 17 Pro 512 Orange 🇯🇵 eSim - 104 000₽","iPhone 17 Pro 512 Orange 🇰🇷 1 Sim + eSim - 114 200₽","iPhone 17 Pro 512 Orange 🇭🇰 1 Sim + eSim - 114 300₽","iPhone 17 Pro 512 Orange 🇪🇺 1 Sim + eSim - 114 400₽","iPhone 17 Pro 1Tb Silver 🇯🇵 eSim - 125 200₽","iPhone 17 Pro 1Tb Silver 🇰🇷 1 Sim + eSim - 133 300₽","iPhone 17 Pro 1Tb Blue 🇯🇵 eSim - 126 200₽","iPhone 17 Pro 1Tb Blue 🇰🇷 Sim + eSim - 132 800₽","iPhone 17 Pro 1Tb Orange 1 Sim + eSim - 130 400₽","iPhone 17 Pro Max 256 Silver 🇪🇺 1 Sim + eSim - 111 200₽","iPhone 17 Pro Max 256 Blue eSim - 102 300₽","iPhone 17 Pro Max 256 Blue 🇭🇰 1 Sim + eSim - 110 100₽","iPhone 17 Pro Max 256 Blue 🇪🇺 1 Sim + eSim - 110 200₽","iPhone 17 Pro Max 256 Orange eSim - 100 500₽","iPhone 17 Pro Max 256 Orange 🇪🇺 1 Sim + eSim - 109 800₽","iPhone 17 Pro Max 512 Silver 🇯🇵 eSim - 122 700₽","iPhone 17 Pro Max 512 Blue eSim - 117 200₽","iPhone 17 Pro Max 512 Blue 🇪🇺 1 Sim + eSim - 126 400₽","iPhone 17 Pro Max 512 Orange eSim - 112 300₽","iPhone 17 Pro Max 512 Orange 1 Sim + eSim - 126 200₽","iPhone 17 Pro Max 1Tb Silver eSim - 136 200₽","iPhone 17 Pro Max 1Tb Blue eSim - 130 900₽","iPhone 17 Pro Max 1Tb Blue 🇰🇷 1 Sim + eSim - 156 700₽","iPhone 17 Pro Max 1Tb Orange eSim - 126 600₽","iPhone 17 Pro Max 2Tb Blue eSim - 144 400₽","iPhone 17 Pro Max 2Tb Orange 🇯🇵 eSim - 144 500₽","iPhone 17 Pro Max 2Tb Orange 🇰🇷 1 Sim + eSim - 172 400₽"],
+  AirPods:["AirPods 4 USB-C - 9 600₽","AirPods Pro 2 USB-C 🇮🇳 - 14 500₽","AirPods Pro 3 - 17 800₽","AirPods Max Purple 2024 USB-C - 39 600₽"],
+  Watch:["Apple Watch SE2 44 Midnight 2024 S/M MXEJ3 🇮🇳 - 16 500₽","Apple Watch SE3 40 Starlight 2025 S/M MEH34 🇺🇸 - 21 500₽","Apple Watch S10 46 Silver M/L MWWM3 🇦🇪 - 26 100₽","Apple Watch S10 46 Rose Gold M/L MWWU3 - 25 300₽","Apple Watch S11 42 Jet Black S/M MEQT4 🇺🇸 - 26 900₽","Apple Watch S11 42 Jet Black S/M MEQT4 🇺🇸 - 27 200₽","Apple Watch S11 42 Space Gray S/M MEQW4 🇺🇸 - 27 100₽","Apple Watch S11 46 Space Gray S/M MEV04 🇺🇸 - 29 300₽","Apple Watch S11 46 Space Gray M/L MEV44 🇺🇸 - 29 200₽","Apple Watch S11 46 Silver M/L MEVA4 🇺🇸 - 30 200₽","Apple Watch S11 46 Rose Gold S/M MEV64 🇺🇸 - 29 600₽","Apple Watch S11 46 Rose Gold M/L MEV74 🇺🇸 - 29 400₽"],
+  iPad:["iPad Mini 6 A15 2021 256 Pink LTE MLX93 🇺🇸 - 57 200₽","iPad Mini 7 A17 Pro 2024 128 Purple LTE MXPR3 🇪🇺 - 58 700₽","iPad 11 A16 2025 128 Silver WI-Fi MD3Y4 🇺🇸 - 30 200₽","iPad 11 A16 2025 128 Blue WI-Fi MD4A4 🇺🇸 - 29 700₽","iPad 11 A16 2025 128 Pink Wi-Fi MD4E4 🇺🇸 - 29 700₽","iPad 11 A16 2025 128 Yellow Wi-Fi MD4D4 🇺🇸 - 29 900₽","iPad 11 A16 2025 256 Silver Wi-Fi MD4G4 🇺🇸 - 38 200₽","iPad 11 A16 2025 256 Pink Wi-Fi MD4P4 🇺🇸 - 38 500₽","iPad 11 A16 2025 512 Yellow 5G MD7R4 🇸🇬 - 63 700₽","iPad Air 7 13 M3 2025 256 Starlight Wi-Fi MCNQ4 🇨🇳 - 71 200₽","iPad Pro 11 M5 2025 256 Silver Wi-Fi MDWL4 - 73 700₽","iPad Pro 11 M5 2025 512 Space Black Wi-Fi MDWM4 🇺🇸 - 93 900₽","iPad Pro 13 M5 2025 256 Space Black 5G ME7W4 🇺🇸 - 98 300₽"],
+  Mac:["MRXN3 MacBook Air 13 2024 M3 8 256 Space Gray 🇨🇳 - 66 700₽","MC6T4 MacBook Air 13 2025 M4 16 256 Sky Blue 🇮🇳 - 73 200₽","MC6T4 MacBook Air 13 2025 M4 16 256 Sky Blue 🇺🇸 - 73 300₽","MC6U4 MacBook Air 13 2025 M4 16 512 Sky Blue - 92 500₽","MC6K4 MacBook Air 15 2025 M4 24 512 Starlight 🇺🇸 - 118 700₽"],
+  Samsung:["Samsung S25 12/128 Ice Blue 🇦🇷 - 43 700₽","Samsung S25 12/256 Silver 🇮🇳 - 51 900₽","Samsung S25 12/256 Ice Blue 🇮🇳 - 50 000₽","Samsung S25 12/256 Mint 🇮🇳 - 51 600₽","Samsung S25 FE 8/256 Ice Blue 🇪🇬 - 40 200₽","Samsung S25 FE 8/256 Navy 🇪🇬 - 38 400₽","Samsung S25 FE 8/256 White 🇪🇬 - 40 200₽","Samsung S25+ 12/256 Navy 🇮🇳 - 55 000₽","Samsung S25 Ultra 12/512 Gray 🇲🇾 (Открыт) - 79 400₽","Samsung S25 Ultra 12/1Tb Black 🇪🇬 - 96 400₽","Samsung S25 Ultra 12/1Tb Gray 🇪🇬 - 96 400₽","Samsung S25 Ultra 12/1Tb Silver Blue 🇦🇷 - 96 400₽","Samsung Z Flip 7 12/256 Blue Shadow 🇲🇾 (Распак) - 62 700₽","Samsung Z Flip 7 12/256 Jet Black 🇲🇾 (Распак) - 61 500₽","Samsung Z Fold 7 12/256 Jet Black 🇲🇾 (Распак) - 109 200₽","Samsung Z Fold 7 12/256 Silver Shadow 🇲🇾 (Распак) - 108 700₽","Samsung Z Fold 7 12/256 Blue Shadow 🇲🇾 (Распак) - 109 200₽","Samsung Z Fold 7 12/512 Jet Black 🇲🇾 (Распак) - 117 200₽","Samsung Z Fold 7 12/512 Silver Shadow 🇲🇾 (Распак) - 116 700₽","Samsung Z Fold 7 12/512 Blue Shadow 🇲🇾 (Распак) - 116 700₽"],
+  Dyson:["🇨🇳 Dyson HS05 Long Nickel/Copper - 35 200₽","🇪🇺 Dyson HS02 Nickel/Copper Origin 3 насадки - 29 700₽","🇨🇳 Dyson HS05 Blue/Copper - 41 200₽","🇭🇰 Dyson HS05 Long Ceramic Pop - 45 200₽","🇹🇭 Dyson HS05 Long Ceramic Pop наша вилка - 42 200₽","🇭🇰 Dyson HS05 Long Ceramic Pink - 48 200₽","🇨🇳 Dyson HS05 Long Topaz Orange - 55 700₽","🇪🇺 Dyson HS05 Long Prussian Blue Copper Diffuse наша вилка🔌 - 50 700₽","🇪🇺 Dyson HS05 Long Strawberry Bronze Diffuse наша вилка🔌 - 50 700₽","🇨🇳 Dyson HS01 Prussian Blue/Copper с чехлом - 61 700₽","🇨🇳 Dyson HS01 Fuchsia/Nickel с чехлом - 54 700₽","🇨🇳 Dyson HS01 Red/Nickel с чехлом - 64 700₽","🇨🇳 Dyson HS01 Prussian Blue/Copper с чехлом, расческой и гребнем - 66 700₽","🇨🇳 Dyson HS01 Fuchsia/Nickel с чехлом, расческой и гребнем - 64 700₽","🇰🇷 Dyson HS02 Nickel/Copper с чехлом - 40 200₽","🇭🇰/🇬🇧 Dyson HS08 Strawberry Bronze Airwrap i.d. and Strait+Wavy - 63 700₽","🇪🇺 Dyson HS08 Strawberry Bronze Airwrap i.d. and Strait+Wavy наша вилка🔌 - 66 700₽","🇭🇰 Dyson HS08 Red Velvet Airwrap i.d. and Strait+Wavy - 50 200₽","🇨🇳/🇭🇰 Dyson HS08 Prussian Blue/Rich Copper Airwrap i.d. and Strait+Wavy - 37 700₽","🇨🇳 Dyson HS08 Vinca Blue Topaz Airwrap i.d. and Strait+Wavy - 33 700₽","🇪🇺 Dyson HS08 Vinca Blue Topaz Airwrap i.d. and Strait+Wavy наша вилка🔌 - 45 700₽","🇬🇧 Dyson HS08 Vinca Blue Topaz Airwrap i.d. and Diffuse for Curly - 41 700₽","🇪🇺 Dyson HS08 Vinca Blue Topaz Airwrap i.d. and Diffuse for Curly - 40 700₽","🇭🇰 Dyson HS08 Amber Silk Airwrap i.d. and Strait+Wavy - 36 200₽","🇰🇷 Dyson HS08 Amber Silk Airwrap i.d. and Strait+wavy наша вилка - 42 200₽","🇪🇺 Dyson HS08 Amber Silk Airwrap i.d. and Diffuse for Curly наша вилка - 41 200₽","🇨🇳/🇭🇰 Dyson HS08 Ceramic Pink Airwrap i.d. and strait+Wavy - 36 700₽","🇪🇺 Dyson HS08 Ceramic Pink Airwrap i.d. and Strait+Wavy наша вилка - 47 200₽","🇪🇺 Dyson HS08 Ceramic Patina Topaz Airwrap i.d. and Diffuse for Curly наша вилка🔌 - 40 700₽","🇭🇰 Dyson HS08 Jasper Plum Airwrap i.d. and Strait+Wavy - 40 200₽","🇪🇺 Dyson HS09 Airwrap Co-Anda 2X Ceramic Pink наша вилка🔌 - 56 700₽","🇭🇰 Dyson HS09 Airwrap Co-Anda 2X Ceramic Pink - 49 700₽","🇬🇧 Dyson HS09 Airwrap Co-Anda 2X Red Velvet - 61 700₽","🇭🇰 Dyson HS09 Airwrap Co-Anda 2X Jasper Plum - 49 700₽","🇰🇷 Dyson HS09 Airwrap Co-Anda 2X Jasper Plum наша вилка🔌 - 53 700₽","🇰🇷 Dyson HS09 Airwrap Co-Anda 2X Amber Silk наша - 54 200₽","🇭🇰 Dyson HS09 Airwrap Co-Anda 2X Amber Silk - 49 700₽","🇮🇳 Dyson HD08 (Blue/Copper) с кейсом - 34 700₽","🇪🇺 Dyson HD07 Prussian Blue/Copper без кейса наша вилка 🔌 - 33 700₽","🇪🇺 Dyson HD07 Nickel/Copper без кейса наша вилка 🔌 - 38 200₽","🇬🇧 Dyson HD07 Gold/Onyx без кейса - 36 200₽","🇭🇰 Dyson HD15 Iron Fuchsia без кейса - 36 700₽","🇨🇳 Dyson HD15 Prussian Blue Copper без кейса - 36 700₽","🇨🇳 SuperSonic Nural HD16 Ceramic Topaz без кейса - 32 700₽","🇪🇺 SuperSonic Nural HD16 Ceramic Topaz Diffuse for Curly без кейса наша вилка 🔌 - 36 700₽","🇬🇧 SuperSonic Nural HD16 Ceramic Topaz Diffuse for Curly без кейса - 36 700₽","🇮🇳 SuperSonic Nural HD16 (Vinca) Blue Topaz с кейсом - 31 700₽","🇪🇺 SuperSonic Nural HD16 (Vinca) Blue Topaz Diffuse for Curly без кейса наша вилка🔌 - 43 700₽","🇭🇰 SuperSonic Nural HD16 Ceramic Pink без кейса - 35 200₽","🇪🇺 SuperSonic Nural HD16 Ceramic Pink без кейса - 38 200₽","🇭🇰 SuperSonic Nural HD16 Kanzan Pink с кейсом - 42 700₽","🇭🇰 SuperSonic Nural HD16 Amber Silk с кейсом - 30 700₽","🇪🇺 SuperSonic Nural HD16 Amber Silk с кейсом - 37 700₽","🇪🇺 SuperSonic Nural HD16 Strawberry Bronze с кейсом - 39 700₽","🇭🇰 SuperSonic Nural HD16 Red Velvet/Gold с кейсом - 40 200₽","🇭🇰 SuperSonic Nural HD16 Jasper Plum с кейсом - 43 700₽","🇪🇺 Dyson HD18 Supersonic R Pro Vinca Blue/Topaz Orange наша вилка 🔌 - 33 700₽","🇭🇰 Dyson HD17 Supersonic R Jasper Plum с кейсом - 37 700₽","🇪🇺 Dyson HD17 Supersonic R Jasper Plum без кейса наша вилка - 41 700₽","🇭🇰 Dyson HD17 Supersonic R Kanzan Pink с кейсом - 38 200₽","🇭🇰 Dyson HD17 Supersonic R Ceramik Pink без кейса - 37 700₽","🇪🇺 Dyson HD17 Supersonic R Ceramik Pink без кейса наша вилка🔌 - 37 200₽","🇮🇳 Dyson HS07 Corrale Copper/Nickel с чехлом и подставкой - 26 200₽","🇹🇭 Dyson AirStrait HT01 Nickel/Copper без кейса наша вилка 🔌 - 40 700₽","🇮🇳 Dyson AirStrait HT01 Nickel/Copper без кейса - 32 200₽","🇮🇳 Dyson AirStrait HT01 Blue/Copper без кейса - 30 700₽","🇪🇺 Dyson Airstrait HT01 Blue/Copper без кейса наша вилка 🔌 - 39 700₽","🇭🇰 Dyson Airstrait HT01 Red Velvet с кейсом - 38 200₽","🇪🇺 Dyson Airstrait HT01 Red Velvet с кейсом наша вилка 🔌 - 39 700₽","🇭🇰/🇮🇳 Dyson AirStrait HT01 Ceramic Pink без кейса - 30 200₽","🇭🇰 Dyson AirStrait HT01 Kanzan Pink c кейсом - 33 700₽","🇮🇳🇭🇰 Dyson AirStrait HT01 Strawberry Bronze с кейсом - 30 700₽","🇰🇷 Dyson AirStrait HT01 Strawberry Bronze с кейсом наша вилка 🔌 - 35 200₽","🇭🇰 Dyson AirStrait HT01 Amber Silk с кейсом - 33 700₽","🇰🇷 Dyson AirStrait HT01 Amber Silk с кейсом наша вилка 🔌 - 39 200₽","🇭🇰 Dyson AirStrait HT01 Jasper Plum с кейсом - 35 700₽","🇰🇷 Dyson AirStrait HT01 Jasper Plum с кейсом наша вилка 🔌 - 43 700₽","🇪🇺 Dyson V8 SV25 Absolute Yellow/Nickel наша вилка 🔌 - 37 200₽","🇬🇧 Dyson V8 SV25 Absolute Nickel/Yellow - 33 200₽","🇬🇧 Dyson V8 SV25 Advanced Silver/Nickel - 26 200₽","🇪🇺 Dyson V8 SV25 Advanced Silver/Nickel наша вилка 🔌 - 33 200₽","🇨🇳 Dyson V8 SV10K Slim Fluffy Nickel/Red - 30 200₽","🇬🇧 Dyson V10 Cyclon Absolute Nickel/Copper - 37 200₽","🇬🇧 Dyson V12 Slim Absolute Detected Yellow/Nickel - 37 700₽","🇪🇺 Dyson V12 Slim Absolute Detected Yellow/Nickel наша вилка 🔌 - 47 700₽","🇮🇳 Dyson V12s Slim Absolute Detected Submarin Yellow/Nickel - 47 200₽","🇪🇺 Dyson V15 SV47 Detect Absolute Yellow/Nickel - 50 200₽","🇮🇳 Dyson V15 SV47 Detect Absolute Yellow/Nickel (Full Complete) - 53 700₽","🇪🇺 Dyson V15 SV47 Detect Total Clean (Full Complete) - 57 700₽","🇪🇺 Dyson V15s Detect Submarine Yellow/Nickel SV47 наша вилка 🔌 - 57 200₽","🇬🇧 Dyson V15s Detect Submarine Yellow/Nickel SV47 - 56 700₽","🇬🇧 Dyson Gen5 SV23 Detect Absolute Purple - 58 700₽","🇪🇺 Dyson Gen5 SV23 Detect Absolute Purple наша вилка 🔌 - 55 200₽","🇪🇺 Dyson Gen5 SV23 Detect Absolute Copper/Blue наша вилка 🔌 - 58 700₽","🇨🇳 Dyson Pencilvac Vacuum Cleaner SV50 FC Black - 54 700₽","🇪🇺 Dyson V16 DS60 Piston Animal SV53-A наша вилка 🔌 - 74 700₽","🇨🇳 Dyson V16 DS60 Piston Animal SV53-A - 71 700₽","🇪🇺 Dyson V16 DS60 Piston Animal+Detail Cleaning Kit SV53-A наша вилка 🔌 - 86 700₽","🇰🇷 Dyson V16 DS60 Piston Animal Submarine SV53A Wash наша вилка с подставкой 🔌 - 111 700₽","🇪🇺 Dyson V16 DS60 Piston Animal Submarine SV53A Wash (без подставки) наша вилка 🔌 - 82 700₽","🇭🇰 Dyson HushJet Black/Teal - 45 200₽","🇭🇰 Dyson HushJet White/Silver - 45 200₽","🇭🇰 Dyson PH3A White/Silver - 81 700₽","🇪🇺 Dyson PH05 Gold/White наша вилка 🔌 - 80 700₽","🇬🇧 Dyson PH05 Gold/White - 58 700₽","🇭🇰 Dyson Airblade V Hand Dryer HU02 White - 64 200₽","🇭🇰 Dyson Airblade V Hand Dryer HU02 Nickel - 59 200₽"]
+};
+
+// Иконки — точный стиль apple.com: тонкий outline, силуэты устройств
+const IC={
+  iPhone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="3"/><line x1="10.5" y1="4.5" x2="13.5" y2="4.5" stroke-width="1.1"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  AirPods:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="2.8"/><path d="M7.2 11C7.2 11 7 17 8.5 17s1.3-6 1.3-6"/><circle cx="15.5" cy="8.5" r="2.8"/><path d="M14.2 11C14.2 11 14 17 15.5 17s1.3-6 1.3-6"/></svg>`,
+  Watch:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="7" width="8" height="10" rx="3"/><path d="M10.5 5h3V7h-3z"/><path d="M10.5 17h3v2h-3z"/><polyline points="12,10 12,12.5 13.5,13.5" stroke-width="1.2"/></svg>`,
+  iPad:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="18.5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  Mac:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/><line x1="9" y1="16" x2="15" y2="16" stroke-width="1.1"/></svg>`,
+  Samsung:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="3"/><line x1="10.5" y1="4.5" x2="13.5" y2="4.5" stroke-width="1.1"/><line x1="11" y1="19.5" x2="13" y2="19.5" stroke-width="1.1"/></svg>`,
+  Dyson:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="12" cy="9" r="5"/><circle cx="12" cy="9" r="2.2"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9.5" y1="20" x2="14.5" y2="20"/></svg>`,
+};
+
+const CATS=[
+  {key:'iPhone'}, {key:'AirPods'}, {key:'Watch'},
+  {key:'iPad'},   {key:'Mac'},     {key:'Samsung'}, {key:'Dyson'},
+];
+
+const SUBS={
+  iPhone:[{l:'Все',f:()=>true},{l:'13',f:s=>/iphone 13\b/i.test(s)},{l:'14',f:s=>/iphone 14\b/i.test(s)},{l:'15',f:s=>/iphone 15\b/i.test(s)&&!/plus|pro/i.test(s)},{l:'15 Plus',f:s=>/iphone 15 plus/i.test(s)},{l:'15 Pro Max',f:s=>/iphone 15 pro max/i.test(s)},{l:'16e',f:s=>/iphone 16e/i.test(s)},{l:'16',f:s=>/iphone 16\b/i.test(s)&&!/plus|pro|16e/i.test(s)},{l:'16 Plus',f:s=>/iphone 16 plus/i.test(s)},{l:'16 Pro',f:s=>/iphone 16 pro\b/i.test(s)&&!/max/i.test(s)},{l:'16 Pro Max',f:s=>/iphone 16 pro max/i.test(s)},{l:'Air',f:s=>/iphone air/i.test(s)},{l:'17',f:s=>/iphone 17\b/i.test(s)&&!/pro/i.test(s)},{l:'17 Pro',f:s=>/iphone 17 pro\b/i.test(s)&&!/max/i.test(s)},{l:'17 Pro Max',f:s=>/iphone 17 pro max/i.test(s)}],
+  AirPods:[{l:'Все',f:()=>true},{l:'4',f:s=>/airpods 4/i.test(s)},{l:'Pro',f:s=>/airpods pro/i.test(s)},{l:'Max',f:s=>/airpods max/i.test(s)}],
+  Watch:[{l:'Все',f:()=>true},{l:'42mm',f:s=>/ 42 /i.test(s)},{l:'46mm',f:s=>/ 46 /i.test(s)}],
+  iPad:[{l:'Все',f:()=>true},{l:'Mini',f:s=>/ipad mini/i.test(s)},{l:'iPad 11',f:s=>/ipad 11/i.test(s)},{l:'Air',f:s=>/ipad air/i.test(s)},{l:'Pro 11',f:s=>/ipad pro 11/i.test(s)},{l:'Pro 13',f:s=>/ipad pro 13/i.test(s)}],
+  Mac:[{l:'Все',f:()=>true},{l:'Air 13 M3',f:s=>/m3/i.test(s)},{l:'Air 13 M4',f:s=>/air 13.*m4/i.test(s)},{l:'Air 15 M4',f:s=>/air 15.*m4/i.test(s)}],
+  Samsung:[{l:'Все',f:()=>true},{l:'S25',f:s=>/samsung s25\b/i.test(s)&&!/fe|ultra|\+/i.test(s)},{l:'S25 FE',f:s=>/s25 fe/i.test(s)},{l:'S25+',f:s=>/s25\+/i.test(s)},{l:'S25 Ultra',f:s=>/s25 ultra/i.test(s)},{l:'Z Flip 7',f:s=>/z flip 7/i.test(s)},{l:'Z Fold 7',f:s=>/z fold 7/i.test(s)}],
+  Dyson:[{l:'Все',f:()=>true},{l:'Airwrap',f:s=>/hs0[89]/i.test(s)},{l:'Supersonic',f:s=>/hd\d{2}|supersonic/i.test(s)},{l:'Corrale',f:s=>/hs0[15]|hs07|corrale/i.test(s)},{l:'AirStrait',f:s=>/airstrait|ht01/i.test(s)},{l:'Пылесосы',f:s=>/v8|v10|v12|v15|v16|gen5|pencilvac/i.test(s)},{l:'Прочее',f:s=>/hushjet|ph3|ph05|airblade/i.test(s)}],
+};
+
+let cat='iPhone',sub=0,inSearch=false,curItem='',curPrice='',instOn=false,selM=null;
+const MOS=[3,6,9,12,18,24,30,36];
+
+function boot(){
+  const nav=document.getElementById('N');
+  CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='ni'+(c.key===cat?' on':'');
+    b.dataset.key=c.key;
+    b.innerHTML=`${IC[c.key]||''}<span class="ni-lb">${c.key}</span>`;
+    b.onclick=()=>selCat(c.key);
+    nav.appendChild(b);
+  });
+  initPhone();
+  fixSC();
+  render();
+}
+
+function selCat(k){
+  cat=k;sub=0;inSearch=false;
+  document.getElementById('si').value='';
+  document.getElementById('clr').classList.remove('v');
+  document.querySelectorAll('.ni').forEach(b=>b.classList.toggle('on',b.dataset.key===k));
+  document.getElementById('SC').scrollTop=0;
+  render();
+  if(tg)tg.HapticFeedback?.selectionChanged();
+}
+
+function onSrch(q){inSearch=!!q.trim();document.getElementById('clr').classList.toggle('v',!!q);render(q.trim());}
+function clrSrch(){document.getElementById('si').value='';document.getElementById('clr').classList.remove('v');inSearch=false;render();}
+
+function render(q=''){
+  const ct=document.getElementById('CT');
+  const pw=document.getElementById('P');
+  ct.innerHTML='';
+
+  if(inSearch&&q){
+    pw.classList.add('h');
+    document.getElementById('SC').className='np';
+    fixSC();
+    const found=Object.values(DATA).flat().filter(s=>s.toLowerCase().includes(q.toLowerCase()));
+    lbl(ct,`Найдено: ${found.length}`);
+    ct.appendChild(found.length?mkList(found,q):emptyEl('🔍','Ничего не нашлось'));
+    ftr(ct);return;
+  }
+
+  const subs=SUBS[cat]||[];
+  if(subs.length>1){
+    pw.classList.remove('h');
+    document.getElementById('SC').className='';
+    mkPills(subs);
+  } else {
+    pw.classList.add('h');
+    document.getElementById('SC').className='np';
+  }
+  fixSC();
+
+  const items=(DATA[cat]||[]).filter(subs[sub]?.f||(()=>true));
+  lbl(ct,`${items.length} позиций`);
+  ct.appendChild(items.length?mkList(items):emptyEl('📦','Нет позиций'));
+  ftr(ct);
+}
+
+function mkPills(subs){
+  const w=document.getElementById('PI');w.innerHTML='';
+  subs.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='pill'+(i===sub?' on':'');
+    b.textContent=s.l;
+    b.onclick=()=>{
+      sub=i;
+      document.querySelectorAll('.pill').forEach((p,j)=>p.classList.toggle('on',j===i));
+      const c=document.getElementById('CT');c.innerHTML='';
+      const items=(DATA[cat]||[]).filter(subs[i].f);
+      lbl(c,`${items.length} позиций`);c.appendChild(mkList(items));ftr(c);
+      document.getElementById('SC').scrollTop=0;
+    };
+    w.appendChild(b);
+  });
+}
+
+function fmtBold(name){
+  // Жирным: ключевые модели/объём памяти — как на фото 1
+  return name.replace(/\b(Pro Max|Pro|Plus|Air|Ultra|Max|Flip \d|Fold \d|128|256|512|1Tb|2Tb)\b/gi,'<strong>$1</strong>');
+}
+
+const PLUS_SVG=`<svg viewBox="0 0 14 14" fill="none"><line x1="7" y1="1.5" x2="7" y2="12.5" stroke="white" stroke-width="2.2" stroke-linecap="round"/><line x1="1.5" y1="7" x2="12.5" y2="7" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+const CHECK_SVG=`<svg viewBox="0 0 14 14" fill="none"><polyline points="2,7 6,11 12,3" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+function mkList(items,q=''){
+  const lst=document.createElement('div');lst.className='lst';
+  items.forEach(s=>{
+    const m=s.match(/^(.+?)\s*-\s*([\d\s]+₽)\s*$/);
+    const name=m?m[1].trim():s;
+    const price=m?m[2].trim():'';
+    const fmtName=q?hl(name,q):fmtBold(name);
+    const row=document.createElement('div');row.className='row';
+    row.innerHTML=`
+      <div class="row-body"><div class="row-name">${fmtName}</div></div>
+      <span class="row-price">${price}</span>
+      <button class="row-plus">${PLUS_SVG}</button>`;
+    const btn=row.querySelector('.row-plus');
+    btn.onclick=e=>{
+      e.stopPropagation();
+      if(btn.classList.contains('added'))return;
+      btn.classList.add('added');
+      btn.innerHTML=CHECK_SVG;
+      if(tg)tg.HapticFeedback?.notificationOccurred('success');
+      setTimeout(()=>{
+        btn.classList.remove('added');
+        btn.innerHTML=PLUS_SVG;
+        openSheet(name,price);
+      },650);
+    };
+    row.onclick=()=>openSheet(name,price);
+    lst.appendChild(row);
+  });
+  return lst;
+}
+
+function lbl(p,t){const d=document.createElement('div');d.className='slbl';d.textContent=t;p.appendChild(d);}
+function emptyEl(e,t){const d=document.createElement('div');d.className='empty';d.innerHTML=`<div class="empty-e">${e}</div>${t}`;return d;}
+function ftr(p){const f=document.createElement('div');f.className='ftr';f.innerHTML='Горбушка, ул. Барклая 8 · Пн–Вс 10:00–21:00';p.appendChild(f);}
+function hl(t,q){return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark>$1</mark>');}
+
+function initPhone(){
+  const ph=document.getElementById('fP');
+  ph.addEventListener('focus',()=>{if(!ph.value)ph.value='+7 ';});
+  ph.addEventListener('input',()=>{
+    let r=ph.value.replace(/\D/g,'');
+    if(r.startsWith('8'))r='7'+r.slice(1);
+    if(!r.startsWith('7'))r='7'+r;
+    r=r.slice(0,11);
+    let f='+7';
+    if(r.length>1)f+=' ('+r.slice(1,4);
+    if(r.length>=4)f+=') '+r.slice(4,7);
+    if(r.length>=7)f+='-'+r.slice(7,9);
+    if(r.length>=9)f+='-'+r.slice(9,11);
+    ph.value=f;
+  });
+  ph.addEventListener('keydown',e=>{if((e.key==='Backspace'||e.key==='Delete')&&ph.value.length<=3)e.preventDefault();});
+  ph.addEventListener('blur',()=>{if(ph.value==='+7 '||ph.value==='+7')ph.value='';});
+}
+
+function mkMos(){
+  const g=document.getElementById('mg');g.innerHTML='';
+  MOS.forEach(m=>{
+    const b=document.createElement('button');b.className='mb'+(selM===m?' on':'');
+    b.textContent=m+'м';b.onclick=e=>{e.stopPropagation();selM=m;mkMos();};g.appendChild(b);
+  });
+}
+function togInst(){
+  instOn=!instOn;
+  document.getElementById('sw').className='sw'+(instOn?' on':'');
+  document.getElementById('imos').className='imos'+(instOn?' v':'');
+  if(!instOn)selM=null;mkMos();
+  if(tg)tg.HapticFeedback?.selectionChanged();
+}
+function openSheet(name,price){
+  curItem=name;curPrice=price;
+  document.getElementById('sn').textContent=name;
+  document.getElementById('sp').textContent=price;
+  document.getElementById('fN').value='';document.getElementById('fP').value='';
+  instOn=false;selM=null;
+  document.getElementById('sw').className='sw';
+  document.getElementById('imos').className='imos';
+  mkMos();
+  document.getElementById('ob').textContent='Написать менеджеру';
+  document.getElementById('ob').className='obtn';
+  document.getElementById('OV').classList.add('open');
+  if(tg)tg.HapticFeedback?.impactOccurred('light');
+}
+function maybeClose(e){if(e.target===document.getElementById('OV'))document.getElementById('OV').classList.remove('open');}
+function send(){
+  const name=document.getElementById('fN').value.trim();
+  const phone=document.getElementById('fP').value.trim();
+  let msg=`Здравствуйте! Хочу заказать:\n\n📦 ${curItem}\n💰 ${curPrice}`;
+  if(name)msg+=`\n\nИмя: ${name}`;
+  if(phone)msg+=`\nТел: ${phone}`;
+  if(instOn)msg+=`\n\n💳 Рассрочка: ${selM?selM+' месяцев':'срок не указан'}`;
+  const url=`https://t.me/semenovaplz_zakaz?text=${encodeURIComponent(msg)}`;
+  if(tg)tg.HapticFeedback?.notificationOccurred('success');
+  document.getElementById('ob').textContent='✓ Переходим…';
+  document.getElementById('ob').className='obtn ok';
+  setTimeout(()=>{window.open(url,'_blank');document.getElementById('OV').classList.remove('open');},350);
+}
+
+function fixSC(){
+  const H=48,SH=52,PH=44,NH=72;
+  const sc=document.getElementById('SC');
+  const hasPills=sc.className==='';
+  const top=hasPills?H+SH+PH:H+SH;
+  sc.style.cssText=`position:fixed;left:0;right:0;top:${top}px;bottom:${NH}px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;`;
+}
+window.addEventListener('resize',fixSC);
+boot();
+</script>
+</body>
+</html>
